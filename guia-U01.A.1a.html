@@ -482,6 +482,29 @@ function reiniciar(){
   document.getElementById('zona-q').style.display='block';
   render();
 }
+
+// ── AUTO-IDENTIFICACIÓN DESDE PORTAL ──────────────────
+// Si el estudiante llega desde el portal, nombre y correo
+// vienen en la URL y se saltan el formulario
+function autoIdentificar() {
+  const params = new URLSearchParams(window.location.search);
+  const nombre = params.get('nombre');
+  const correo = params.get('correo');
+  if (nombre && correo) {
+    document.getElementById('inp-nombre').value = nombre;
+    document.getElementById('inp-correo').value = correo;
+    // Ocultar formulario y arrancar directo
+    document.getElementById('zona-ident').style.display = 'none';
+    document.getElementById('zona-q').style.display = 'block';
+    nombreEstudiante = nombre;
+    EJ = generarEjercicios();
+    resp = new Array(8).fill(null);
+    actual = 0; sel = null;
+    render();
+  }
+}
+// Ejecutar al cargar la página
+window.addEventListener('load', autoIdentificar);
 </script>
 </body>
 </html>
