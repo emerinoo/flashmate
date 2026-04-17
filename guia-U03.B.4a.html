@@ -344,15 +344,13 @@ function mostrarFinal(){
   registrar(corr,incorrectas,nlsC,pct);
   document.getElementById('pmsg').textContent=pct+'% de logro'+(nlsC>0?` · ${nlsC} sin responder`:'');
   const al=document.getElementById('alerta');
-  if(incorrectas>3){
-    al.className='alerta rep';
-    al.innerHTML=`<strong>Se sugiere repetir esta guía.</strong><br>Tuviste ${incorrectas} respuesta${incorrectas!==1?'s':''} incorrecta${incorrectas!==1?'s':''}. Repasa los conceptos y vuelve a intentarlo.`;
-    document.getElementById('btn-rep').textContent='Repetir con valores nuevos';
-  } else {
-    al.className='alerta bien';
-    al.innerHTML=`<strong>¡Muy bien, ${nombreEstudiante}!</strong> Obtuviste ${corr}/8 (${pct}%). Puedes avanzar a la siguiente guía.`;
-    document.getElementById('btn-rep').textContent='Te invito a repetir de todas formas';
-  }
+  const MSGS={alto:[{titulo:'🔥 ¡Dominaste esta guía!',txt:'Tu cerebro matemático está encendido. Puedes avanzar con confianza.'},{titulo:'⚡ ¡Excelente nivel!',txt:'Eso es exactamente el nivel PAES que necesitas. ¡Sigue así!'},{titulo:'🎯 ¡Puntazo!',txt:'Cada guía así te acerca más al puntaje que quieres.'},{titulo:'🚀 ¡Así se hace!',txt:'Estás construyendo una base sólida. Tu esfuerzo se nota.'},{titulo:'🌟 ¡Brillante!',txt:'Logro de '+pct+'%. Eso no es suerte, es práctica constante.'}],medio:[{titulo:'💪 ¡Vas bien!',txt:'Una repetición más y esta guía será tuya. ¡Tú puedes!'},{titulo:'📈 Buen avance',txt:'Estás construyendo algo sólido. Repite y confirma lo que aprendiste.'},{titulo:'✨ ¡Ya casi!',txt:'Con un intento más lo dominas. El progreso ya es visible.'},{titulo:'🎯 En camino',txt:'Cada intento te acerca más. Repite sin presión, con foco.'},{titulo:'⚡ Sigue sumando',txt:''+pct+'% de logro. Repite una vez más y lo tendrás dominado.'}],bajo:[{titulo:'💡 Esta guía te está enseñando algo importante',txt:'Cada error es información valiosa. Inténtalo de nuevo con calma.'},{titulo:'🧠 Así funciona el aprendizaje real',txt:'Los errores son parte del proceso. Repite antes de avanzar.'},{titulo:'🔄 No te rindas',txt:'Los conceptos nuevos necesitan más de un intento. ¡Vuelta a intentarlo!'},{titulo:'💪 El desafío es parte del camino',txt:'Repite esta guía. Con práctica constante lo lograrás.'},{titulo:'🌱 Aquí es donde más se aprende',txt:'Revisa las retroalimentaciones y vuelve a intentarlo. ¡Confía en el proceso!'}]};
+  const nivel_msg=pct>=75?'alto':pct>=50?'medio':'bajo';
+  const lista=MSGS[nivel_msg];
+  const msg=lista[Math.floor(Math.random()*lista.length)];
+  if(nivel_msg==='alto'){al.className='alerta bien';al.innerHTML=`<strong>${msg.titulo}, ${nombreEstudiante}!</strong><br>${msg.txt}`;document.getElementById('btn-rep').textContent='Repetir para afianzar';}
+  else if(nivel_msg==='medio'){al.className='alerta bien';al.innerHTML=`<strong>${msg.titulo}, ${nombreEstudiante}!</strong><br>${msg.txt}`;document.getElementById('btn-rep').textContent='Repetir con valores nuevos';}
+  else{al.className='alerta rep';al.innerHTML=`<strong>${msg.titulo}, ${nombreEstudiante}.</strong><br>${msg.txt}`;document.getElementById('btn-rep').textContent='Repetir con valores nuevos';}
   const dots=document.getElementById('dots');dots.innerHTML='';
   resp.forEach((r,i)=>{
     const d=document.createElement('div');
@@ -395,6 +393,29 @@ function reiniciar(){
   document.getElementById('zona-q').style.display='block';
   render();
 }
+
+// ── AUTO-IDENTIFICACIÓN DESDE PORTAL ──────────────────
+// Si el estudiante llega desde el portal, nombre y correo
+// vienen en la URL y se saltan el formulario
+function autoIdentificar() {
+  const params = new URLSearchParams(window.location.search);
+  const nombre = params.get('nombre');
+  const correo = params.get('correo');
+  if (nombre && correo) {
+    document.getElementById('inp-nombre').value = nombre;
+    document.getElementById('inp-correo').value = correo;
+    // Ocultar formulario y arrancar directo
+    document.getElementById('zona-ident').style.display = 'none';
+    document.getElementById('zona-q').style.display = 'block';
+    nombreEstudiante = nombre;
+    EJ = generarEjercicios();
+    resp = new Array(8).fill(null);
+    actual = 0; sel = null;
+    render();
+  }
+}
+// Ejecutar al cargar la página
+window.addEventListener('load', autoIdentificar);
 </script>
 </body>
 </html>
