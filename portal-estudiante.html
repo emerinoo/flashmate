@@ -595,11 +595,11 @@ function renderSecciones() {
 
         let btnHTML = '';
         if (completada) {
-          btnHTML = `<a class="btn-guia completada-btn" href="${BASE_URL}guia-${g.cod}.html" target="_blank">✓ Repetir guía</a>`;
+          btnHTML = `<a class="btn-guia completada-btn" href="${BASE_URL}guia-${g.cod}.html?nombre=${encodeURIComponent(estudiante.nombre)}&correo=${encodeURIComponent(estudiante.correo)}" target="_blank">✓ Repetir guía</a>`;
         } else if (resultado) {
-          btnHTML = `<a class="btn-guia" href="${BASE_URL}guia-${g.cod}.html" target="_blank">↗ Continuar</a>`;
+          btnHTML = `<a class="btn-guia" href="${BASE_URL}guia-${g.cod}.html?nombre=${encodeURIComponent(estudiante.nombre)}&correo=${encodeURIComponent(estudiante.correo)}" target="_blank">↗ Continuar</a>`;
         } else {
-          btnHTML = `<a class="btn-guia" href="${BASE_URL}guia-${g.cod}.html" target="_blank">▶ Comenzar</a>`;
+          btnHTML = `<a class="btn-guia" href="${BASE_URL}guia-${g.cod}.html?nombre=${encodeURIComponent(estudiante.nombre)}&correo=${encodeURIComponent(estudiante.correo)}" target="_blank">▶ Comenzar</a>`;
         }
 
         card.innerHTML = `
