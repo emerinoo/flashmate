@@ -289,8 +289,22 @@ function mostrarFinal(){
 function registrar(corr,incorr,nls,pct){
   var fecha=new Date().toLocaleDateString('es-CL',{timeZone:'America/Santiago'});
   var correo=document.getElementById('inp-correo').value.trim();
+  var HAB_E=["Argumentar", "Resolver problemas", "Modelar", "Argumentar", "Representar", "Modelar", "Resolver problemas", "Argumentar"];
   var ejercicios=resp.map(function(r,i){return r===4?2:(r===EJ[i].ok?1:0);});
   var falladas=[];resp.forEach(function(r,i){if(r!==EJ[i].ok&&falladas.indexOf(EJ[i].hab)===-1)falladas.push(EJ[i].hab);});
+  // ── CÁLCULO LOGRO POR HABILIDAD ──────────────────────
+  var HAB_MAP={e1:HAB_E[0],e2:HAB_E[1],e3:HAB_E[2],e4:HAB_E[3],e5:HAB_E[4],e6:HAB_E[5],e7:HAB_E[6],e8:HAB_E[7]};
+  var habCorr={'Resolver problemas':0,'Modelar':0,'Representar':0,'Argumentar':0};
+  var habTot={'Resolver problemas':0,'Modelar':0,'Representar':0,'Argumentar':0};
+  ['e1','e2','e3','e4','e5','e6','e7','e8'].forEach(function(k,i){
+    var h=HAB_MAP[k];
+    habTot[h]=(habTot[h]||0)+1;
+    if(ejercicios[i]===1) habCorr[h]=(habCorr[h]||0)+1;
+  });
+  var logroResolver=habTot['Resolver problemas']>0?Math.round(habCorr['Resolver problemas']/habTot['Resolver problemas']*100)/100:null;
+  var logroModelar=habTot['Modelar']>0?Math.round(habCorr['Modelar']/habTot['Modelar']*100)/100:null;
+  var logroRepresentar=habTot['Representar']>0?Math.round(habCorr['Representar']/habTot['Representar']*100)/100:null;
+  var logroArgumentar=habTot['Argumentar']>0?Math.round(habCorr['Argumentar']/habTot['Argumentar']*100)/100:null;
   var params=['fecha='+encodeURIComponent(fecha),'nombre='+encodeURIComponent(nombreEstudiante),'correo='+encodeURIComponent(correo),'tipo=individual','grupo=NA','guia=guia-U01.B.7c','eje=E1','unidad=U01','subunidad=B','nivel=c','correctas='+corr,'incorrectas='+incorr,'nls='+nls,'logro='+(pct/100),'e1='+ejercicios[0],'e2='+ejercicios[1],'e3='+ejercicios[2],'e4='+ejercicios[3],'e5='+ejercicios[4],'e6='+ejercicios[5],'e7='+ejercicios[6],'e8='+ejercicios[7],'habilidades='+encodeURIComponent(falladas.join('|'))].join('&');
   var img=new Image();img.src='https://script.google.com/macros/s/AKfycbzsGCpwyNNFC03rbCLUwnPLTHBAn5FZxEJrqq1JX0LrDAY7jmJRQ58bcdaQ8XtS6MM3/exec?'+params;
 }
