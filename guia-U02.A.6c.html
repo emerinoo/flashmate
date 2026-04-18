@@ -319,6 +319,17 @@ function registrar(corr,incorr,nls,pct){
   var params=['fecha='+encodeURIComponent(fecha),'nombre='+encodeURIComponent(nombreEstudiante),'correo='+encodeURIComponent(correo),'tipo=individual','grupo=NA','guia=guia-U02.A.6c','eje=E1','unidad=U02','subunidad=A','nivel=c','correctas='+corr,'incorrectas='+incorr,'nls='+nls,'logro='+(pct/100),'e1='+ejercicios[0],'e2='+ejercicios[1],'e3='+ejercicios[2],'e4='+ejercicios[3],'e5='+ejercicios[4],'e6='+ejercicios[5],'e7='+ejercicios[6],'e8='+ejercicios[7],'habilidades='+encodeURIComponent(falladas.join('|'))].join('&');
   var img=new Image();img.src='https://script.google.com/macros/s/AKfycbzsGCpwyNNFC03rbCLUwnPLTHBAn5FZxEJrqq1JX0LrDAY7jmJRQ58bcdaQ8XtS6MM3/exec?'+params;
 }
+
+function volverPortal(){
+  const params=new URLSearchParams(window.location.search);
+  const nombre=params.get('nombre');
+  const correo=params.get('correo');
+  if(nombre&&correo){
+    window.location.href='portal-estudiante.html?nombre='+encodeURIComponent(nombre)+'&correo='+encodeURIComponent(correo);
+  } else {
+    window.location.href='portal-estudiante.html';
+  }
+}
 function reiniciar(){EJ=generarEjercicios();actual=0;resp=new Array(8).fill(null);sel=null;document.getElementById('zona-final').style.display='none';document.getElementById('zona-q').style.display='block';render();}
 
 // ── AUTO-IDENTIFICACIÓN DESDE PORTAL ──────────────────

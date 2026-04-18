@@ -652,6 +652,18 @@ function salir() {
   document.getElementById('btn-login').disabled = false;
   document.getElementById('btn-login').textContent = 'Ingresar →';
 }
+
+// Auto-login si viene desde una guía con parámetros
+window.addEventListener('load', function(){
+  const params = new URLSearchParams(window.location.search);
+  const correo = params.get('correo');
+  const nombre = params.get('nombre');
+  if (correo && nombre) {
+    document.getElementById('inp-correo-login').value = correo;
+    // Verificar acceso automáticamente
+    verificarAcceso();
+  }
+});
 </script>
 </body>
 </html>
