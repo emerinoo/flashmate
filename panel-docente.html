@@ -327,6 +327,28 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--texto);mi
 </head>
 <body>
 
+<!-- ══════ LOGIN DOCENTE ══════ -->
+<div id="pantalla-clave" style="min-height:100vh;background:linear-gradient(135deg,#38388E 0%,#1a1a5e 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;">
+  <div style="background:#fff;border-radius:20px;padding:40px 36px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);">
+    <img style="height:56px;margin-bottom:16px;" src="https://emerinoo.github.io/flashmate/logo-erika.png" alt="FlashMate" onerror="this.style.display='none'">
+    <div style="font-size:18px;font-weight:700;color:#38388E;margin-bottom:4px;">Panel Docente</div>
+    <div style="font-size:12px;color:#6B7280;margin-bottom:24px;">Ingresa la clave de acceso para continuar</div>
+    <input id="inp-clave" type="password" placeholder="Clave de acceso"
+      style="width:100%;padding:11px 14px;border:2px solid #E5E7EB;border-radius:10px;font-family:'Poppins',sans-serif;font-size:14px;outline:none;margin-bottom:8px;"
+      onkeydown="if(event.key==='Enter')verificarClave()">
+    <button onclick="verificarClave()"
+      style="width:100%;background:#ED3B62;color:#fff;border:none;border-radius:10px;padding:12px;font-family:'Poppins',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-top:4px;">
+      Ingresar →
+    </button>
+    <div id="clave-error" style="display:none;background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;border-radius:8px;padding:10px;font-size:12px;margin-top:10px;">
+      Clave incorrecta. Intenta nuevamente.
+    </div>
+  </div>
+  <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:20px;">© 2026 Erika la Profe de Mate</div>
+</div>
+
+<div id="panel-contenido" style="display:none;">
+
 <!-- HEADER -->
 <div class="hdr">
   <div class="hdr-left">
@@ -994,9 +1016,46 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-overlay')) cerrarModal();
 });
 
-// ── INIT ──
-cargarEstudiantes();
-renderizarCatalogo();
+// ── INIT: controlado por chequearAcceso() ──
+
+// ── CONTROL DE ACCESO ────────────────────────────────────
+const CLAVE_HASH = 'MateFlash_1976';
+const DIAS_SESSION = 30;
+
+function verificarClave() {
+  const val = document.getElementById('inp-clave').value;
+  const err = document.getElementById('clave-error');
+  if (val === CLAVE_HASH) {
+    const expira = Date.now() + DIAS_SESSION * 24 * 60 * 60 * 1000;
+    localStorage.setItem('fm_doc_auth', expira);
+    mostrarPanel();
+  } else {
+    err.style.display = 'block';
+    document.getElementById('inp-clave').value = '';
+    document.getElementById('inp-clave').focus();
+  }
+}
+
+function mostrarPanel() {
+  document.getElementById('pantalla-clave').style.display = 'none';
+  document.getElementById('panel-contenido').style.display = 'block';
+  cargarEstudiantes();
+  renderizarCatalogo();
+}
+
+function chequearAcceso() {
+  const auth = localStorage.getItem('fm_doc_auth');
+  if (auth && parseInt(auth) > Date.now()) {
+    mostrarPanel();
+  } else {
+    localStorage.removeItem('fm_doc_auth');
+    document.getElementById('pantalla-clave').style.display = 'flex';
+  }
+}
+
+window.addEventListener('load', chequearAcceso);
+
 </script>
+</div><!-- /panel-contenido -->
 </body>
 </html>
