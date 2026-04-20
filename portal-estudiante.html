@@ -274,6 +274,44 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--texto);mi
   border-radius:50%;animation:spin .7s linear infinite;
 }
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── ENSAYO ── */
+.ensayo-wrap{margin-bottom:28px;}
+.ensayo-card{
+  background:var(--card);border-radius:16px;
+  border:1.5px solid var(--borde);overflow:hidden;
+}
+.ensayo-card.tiene-fecha{border-color:#0187F3;}
+.ensayo-top{padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+.ensayo-badge{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:10px;font-weight:700;padding:3px 10px;
+  border-radius:20px;margin-bottom:8px;
+}
+.ensayo-badge.pronto{background:#EEF2FF;color:#38388E;}
+.ensayo-badge.fecha{background:#e0f0fe;color:#0162b8;}
+.ensayo-badge.hoy{background:#fde8ed;color:#c0204a;}
+.ensayo-titulo{font-size:15px;font-weight:700;color:var(--texto);margin-bottom:2px;}
+.ensayo-sub{font-size:12px;color:var(--suave);}
+.ensayo-fecha-grande{
+  text-align:right;flex-shrink:0;
+}
+.ensayo-dia{font-size:26px;font-weight:800;color:#0187F3;line-height:1;}
+.ensayo-mes{font-size:11px;color:var(--suave);margin-top:2px;}
+.ensayo-action{
+  padding:12px 18px;border-top:1px solid var(--borde);
+  display:flex;align-items:center;justify-content:space-between;
+  background:#FAFAFA;
+}
+.ensayo-hint{font-size:11px;color:var(--suave);}
+.btn-ensayo{
+  background:#0187F3;color:#fff;border:none;border-radius:10px;
+  padding:9px 20px;font-family:'Poppins',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;
+  text-decoration:none;display:inline-block;
+  transition:opacity .15s;
+}
+.btn-ensayo:hover{opacity:.88;}
 </style>
 </head>
 <body>
@@ -356,6 +394,13 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--texto);mi
     <div class="semana-wrap">
       <div class="seccion-label">Esta semana</div>
       <div class="semana-lista" id="semana-lista"></div>
+    </div>
+
+
+    <!-- ENSAYO -->
+    <div class="ensayo-wrap">
+      <div class="seccion-label">Ensayo PAES</div>
+      <div id="ensayo-contenido"></div>
     </div>
 
     <!-- CATÁLOGO COLAPSABLE -->
@@ -496,6 +541,7 @@ async function verificarAcceso() {
       vencimiento:      dataVerif.vencimiento,
       guiasHabilitadas: dataVerif.guiasHabilitadas || [],
       guiaHoy:          dataVerif.guiaHoy   || null,
+      ensayoHoy:        dataVerif.ensayoHoy  || null,
       semana:           dataVerif.semana    || [],
       totalEjercicios:  dataVerif.totalEjercicios || 0,
       resultados:       dataRes.resultados  || {}
@@ -532,6 +578,7 @@ function mostrarPortal() {
   renderBarra800();
   renderGuiaHoy();
   renderSemana();
+  renderEnsayo();
   renderCatalogo();
 }
 
@@ -727,6 +774,106 @@ function formatFecha(fechaStr) {
   const dias  = ['dom','lun','mar','mié','jue','vie','sáb'];
   const d = new Date(fechaStr + 'T12:00:00');
   return dias[d.getDay()] + ' ' + d.getDate();
+}
+
+
+// ── ENSAYO ──
+function renderEnsayo() {
+  const contenedor = document.getElementById('ensayo-contenido');
+  const ensayo = estudiante.ensayoHoy;
+
+  if (!ensayo) {
+    // Sin ensayo asignado — mostrar "pronto"
+    contenedor.innerHTML = `
+      <div class="ensayo-card">
+        <div class="ensayo-top">
+          <div>
+            <div class="ensayo-badge pronto">Próximo ensayo</div>
+            <div class="ensayo-titulo">Ensayo PAES M1</div>
+            <div class="ensayo-sub">65 preguntas · 2 horas 20 minutos</div>
+          </div>
+          <div class="ensayo-fecha-grande">
+            <div class="ensayo-dia" style="color:var(--suave);font-size:18px;">Pronto</div>
+            <div class="ensayo-mes">sin fecha asignada</div>
+          </div>
+        </div>
+        <div class="ensayo-action">
+          <span class="ensayo-hint">Tu profesora asignará la fecha del próximo ensayo</span>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const esHoy = ensayo.fecha === new Date().toISOString().split('T')[0];
+  const completado = ensayo.estado === 'completada';
+  const fechaObj = new Date(ensayo.fecha + 'T12:00:00');
+  const dias = ['dom','lun','mar','mié','jue','vie','sáb'];
+  const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const labelDia = dias[fechaObj.getDay()] + ' ' + fechaObj.getDate();
+  const labelMes = meses[fechaObj.getMonth()] + ' ' + fechaObj.getFullYear();
+
+  const urlEnsayo = 'https://emerinoo.github.io/flashmate/ensayo-' + ensayo.ensayo +
+    '.html?nombre=' + encodeURIComponent(estudiante.nombre) +
+    '&correo=' + encodeURIComponent(estudiante.correo);
+
+  if (completado) {
+    contenedor.innerHTML = `
+      <div class="ensayo-card" style="border-color:var(--verde);">
+        <div class="ensayo-top">
+          <div>
+            <div class="ensayo-badge" style="background:#D1FAE5;color:#065F46;">✓ Completado</div>
+            <div class="ensayo-titulo">${ensayo.ensayo_nombre || 'Ensayo PAES'}</div>
+            <div class="ensayo-sub">65 preguntas · ${labelDia} ${labelMes}</div>
+          </div>
+        </div>
+        <div class="ensayo-action">
+          <span class="ensayo-hint">¡Bien hecho! Tu profesora revisará los resultados.</span>
+          <a class="btn-ensayo" style="background:var(--verde);" href="${urlEnsayo}" target="_blank">↗ Ver ensayo</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (esHoy) {
+    contenedor.innerHTML = `
+      <div class="ensayo-card" style="border-color:var(--rojo);border-width:2px;">
+        <div class="ensayo-top">
+          <div>
+            <div class="ensayo-badge hoy">Hoy es el ensayo</div>
+            <div class="ensayo-titulo">${ensayo.ensayo_nombre || 'Ensayo PAES M1'}</div>
+            <div class="ensayo-sub">65 preguntas · 2 horas 20 minutos</div>
+          </div>
+          <div class="ensayo-fecha-grande">
+            <div class="ensayo-dia" style="color:var(--rojo);">${fechaObj.getDate()}</div>
+            <div class="ensayo-mes">${labelMes}</div>
+          </div>
+        </div>
+        <div class="ensayo-action">
+          <span class="ensayo-hint">Cuando termines registra tus respuestas</span>
+          <a class="btn-ensayo" href="${urlEnsayo}" target="_blank">Iniciar ensayo →</a>
+        </div>
+      </div>`;
+    return;
+  }
+
+  // Fecha futura
+  contenedor.innerHTML = `
+    <div class="ensayo-card tiene-fecha">
+      <div class="ensayo-top">
+        <div>
+          <div class="ensayo-badge fecha">Próximo ensayo</div>
+          <div class="ensayo-titulo">${ensayo.ensayo_nombre || 'Ensayo PAES M1'}</div>
+          <div class="ensayo-sub">65 preguntas · 2 horas 20 minutos</div>
+        </div>
+        <div class="ensayo-fecha-grande">
+          <div class="ensayo-dia">${fechaObj.getDate()}</div>
+          <div class="ensayo-mes">${labelMes}</div>
+        </div>
+      </div>
+      <div class="ensayo-action">
+        <span class="ensayo-hint">Prepárate con tus guías diarias</span>
+      </div>
+    </div>`;
 }
 
 // ── CATÁLOGO ──
