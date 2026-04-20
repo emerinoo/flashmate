@@ -229,6 +229,65 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--texto);mi
   font-family:'Poppins',sans-serif;font-size:12px;cursor:pointer;
 }
 
+
+/* ── ENSAYOS ── */
+.ensayo-bloque{
+  background:var(--card);border:1.5px solid var(--borde);
+  border-radius:14px;margin-bottom:12px;overflow:hidden;
+}
+.ensayo-est-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--borde);
+}
+.ensayo-est-info{display:flex;align-items:center;gap:10px;}
+.ensayo-asignado{
+  background:#e0f0fe;border:1.5px solid #0187F3;
+  border-radius:10px;padding:12px 16px;
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin:12px 16px;
+}
+.ensayo-asignado.completado{background:#EAF3DE;border-color:#97C459;}
+.ensayo-asignado.hoy{background:#fde8ed;border-color:#ED3B62;}
+.ensayo-asignado-info{flex:1;}
+.ensayo-asignado-cod{font-size:12px;font-weight:700;color:#0162b8;}
+.ensayo-asignado.hoy .ensayo-asignado-cod{color:#c0204a;}
+.ensayo-asignado.completado .ensayo-asignado-cod{color:#3B6D11;}
+.ensayo-asignado-fecha{font-size:11px;color:#0162b8;margin-top:2px;}
+.ensayo-asignado.hoy .ensayo-asignado-fecha{color:#c0204a;}
+.ensayo-asignado.completado .ensayo-asignado-fecha{color:#3B6D11;}
+.btn-quitar-ensayo{
+  background:transparent;border:none;
+  font-size:16px;cursor:pointer;opacity:.5;
+  padding:4px;
+}
+.btn-quitar-ensayo:hover{opacity:1;}
+.ensayo-form{
+  padding:12px 16px;display:flex;align-items:flex-end;gap:10px;flex-wrap:wrap;
+}
+.ensayo-form label{font-size:11px;color:var(--suave);display:block;margin-bottom:4px;}
+.ensayo-select,.ensayo-date{
+  padding:8px 12px;border:1.5px solid var(--borde);border-radius:8px;
+  font-family:'Poppins',sans-serif;font-size:12px;color:var(--texto);
+  outline:none;background:#fff;
+}
+.ensayo-select:focus,.ensayo-date:focus{border-color:var(--celeste);}
+.btn-asignar-ensayo{
+  background:#0187F3;color:#fff;border:none;border-radius:8px;
+  padding:9px 16px;font-family:'Poppins',sans-serif;
+  font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;
+}
+.btn-asignar-ensayo:hover{opacity:.88;}
+.sin-ensayo{
+  padding:12px 16px;font-size:12px;color:var(--suave);font-style:italic;
+}
+.btn-guardar-ensayos{
+  background:var(--azul);color:#fff;border:none;
+  font-family:'Poppins',sans-serif;font-size:13px;font-weight:600;
+  padding:9px 22px;border-radius:10px;cursor:pointer;
+  transition:opacity .15s;
+}
+.btn-guardar-ensayos:hover{opacity:.88;}
+
 /* ── CATÁLOGO (existente, sin cambios) ── */
 .filtros{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;}
 .btn-filtro{
@@ -365,6 +424,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--texto);mi
 <div class="tabs-wrap">
   <div class="tabs">
     <button class="tab activo" onclick="cambiarTab('planificacion',this)">Planificación semanal</button>
+    <button class="tab" onclick="cambiarTab('ensayos',this)">Ensayos</button>
     <button class="tab" onclick="cambiarTab('catalogo',this)">Catálogo de guías</button>
   </div>
 </div>
@@ -400,6 +460,24 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--texto);mi
   <div style="display:flex;justify-content:flex-end;margin-top:16px;">
     <button class="btn-guardar" id="btn-guardar" onclick="guardarPlanificacion()">Guardar semana</button>
   </div>
+
+</div>
+
+
+<!-- ══════════════════════════════════════
+     VISTA: ENSAYOS
+══════════════════════════════════════ -->
+<div class="vista" id="vista-ensayos">
+
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div>
+      <div style="font-size:15px;font-weight:700;color:var(--azul);">Asignación de ensayos</div>
+      <div style="font-size:12px;color:var(--suave);margin-top:2px;">Asigna cualquier fecha, incluyendo sábado y domingo</div>
+    </div>
+    <button class="btn-guardar-ensayos" onclick="guardarEnsayos()">Guardar ensayos</button>
+  </div>
+
+  <div id="bloques-ensayos"></div>
 
 </div>
 
@@ -875,6 +953,7 @@ async function cargarEstudiantes() {
 
   // Una vez cargados los estudiantes, carga el plan existente
   await cargarPlanExistente();
+  renderEnsayos();
 }
 
 // ── CARGAR PLAN EXISTENTE ──
@@ -1016,6 +1095,163 @@ document.getElementById('modal-overlay').addEventListener('click', e => {
   if (e.target === document.getElementById('modal-overlay')) cerrarModal();
 });
 
+
+// ══════════════════════════════════════════
+// ENSAYOS
+// ══════════════════════════════════════════
+const ENSAYOS_CATALOGO = [
+  {cod:'E01', nombre:'Diagnóstico PAES-2016 D2601'},
+  {cod:'E02', nombre:'Ensayo PAES 2017'},
+  {cod:'E03', nombre:'Ensayo PAES 2018'},
+  {cod:'E04', nombre:'Ensayo PAES 2019'},
+  {cod:'E05', nombre:'Ensayo PAES 2020'},
+  {cod:'E06', nombre:'Ensayo PAES 2021'},
+  {cod:'E07', nombre:'Ensayo PAES 2022'},
+  {cod:'E08', nombre:'Ensayo PAES 2023'},
+  {cod:'E09', nombre:'Ensayo PAES 2024'},
+  {cod:'E10', nombre:'Ensayo PAES 2025'},
+];
+
+// planEnsayos[correo] = { ensayo, fecha, estado }
+let planEnsayos = {};
+
+function renderEnsayos() {
+  const contenedor = document.getElementById('bloques-ensayos');
+  if (!contenedor) return;
+  contenedor.innerHTML = '';
+  const hoyStr = new Date().toISOString().split('T')[0];
+
+  ESTUDIANTES.forEach((est, idx) => {
+    const asignado = planEnsayos[est.correo] || null;
+
+    const bloque = document.createElement('div');
+    bloque.className = 'ensayo-bloque';
+
+    // Opciones del select de ensayos
+    const optsEnsayo = ENSAYOS_CATALOGO.map(e =>
+      `<option value="${e.cod}">${e.cod} · ${e.nombre}</option>`
+    ).join('');
+
+    // Estado del ensayo asignado
+    let asignadoHTML = '';
+    if (asignado) {
+      const esHoy = asignado.fecha === hoyStr;
+      const cls = asignado.estado === 'completada' ? 'completado' : esHoy ? 'hoy' : '';
+      const label = asignado.estado === 'completada' ? '✓ Completado' : esHoy ? 'Hoy' : asignado.fecha;
+      asignadoHTML = `
+        <div class="ensayo-asignado ${cls}">
+          <div class="ensayo-asignado-info">
+            <div class="ensayo-asignado-cod">${asignado.ensayo} · ${asignado.ensayo_nombre || ''}</div>
+            <div class="ensayo-asignado-fecha">${label}</div>
+          </div>
+          ${asignado.estado !== 'completada' ? `<button class="btn-quitar-ensayo" onclick="quitarEnsayo('${est.correo}')">✕</button>` : ''}
+        </div>`;
+    } else {
+      asignadoHTML = `<div class="sin-ensayo">Sin ensayo asignado</div>`;
+    }
+
+    const fechaMin = new Date().toISOString().split('T')[0];
+
+    bloque.innerHTML = `
+      <div class="ensayo-est-hdr">
+        <div class="estudiante-info">
+          <div class="avatar av-${est.avIdx % 5}">${est.iniciales}</div>
+          <div>
+            <div class="est-nombre">${est.nombre}</div>
+            <div class="est-meta">${est.correo}</div>
+          </div>
+        </div>
+      </div>
+      ${asignadoHTML}
+      ${asignado && asignado.estado === 'completada' ? '' : `
+      <div class="ensayo-form">
+        <div>
+          <label>Ensayo</label>
+          <select class="ensayo-select" id="sel-ensayo-${idx}">${optsEnsayo}</select>
+        </div>
+        <div>
+          <label>Fecha</label>
+          <input type="date" class="ensayo-date" id="fecha-ensayo-${idx}" min="${fechaMin}">
+        </div>
+        <button class="btn-asignar-ensayo" onclick="asignarEnsayo('${est.correo}',${idx})">
+          Asignar
+        </button>
+      </div>`}`;
+
+    contenedor.appendChild(bloque);
+  });
+}
+
+function asignarEnsayo(correo, idx) {
+  const sel   = document.getElementById(`sel-ensayo-${idx}`);
+  const fecha = document.getElementById(`fecha-ensayo-${idx}`);
+  if (!fecha.value) { mostrarToast('Selecciona una fecha para el ensayo'); return; }
+
+  const ensayoObj = ENSAYOS_CATALOGO.find(e => e.cod === sel.value);
+  planEnsayos[correo] = {
+    ensayo:       sel.value,
+    ensayo_nombre: ensayoObj ? ensayoObj.nombre : sel.value,
+    fecha:        fecha.value,
+    estado:       'asignado'
+  };
+  renderEnsayos();
+}
+
+function quitarEnsayo(correo) {
+  delete planEnsayos[correo];
+  renderEnsayos();
+}
+
+async function guardarEnsayos() {
+  const asignaciones = Object.entries(planEnsayos)
+    .filter(([_, v]) => v.estado !== 'completada')
+    .map(([correo, v]) => ({
+      correo,
+      fecha:        v.fecha,
+      guia:         v.ensayo,
+      ensayo_nombre: v.ensayo_nombre,
+      tipo:         'ensayo'
+    }));
+
+  if (asignaciones.length === 0) {
+    mostrarToast('No hay ensayos para guardar');
+    return;
+  }
+
+  try {
+    const url = SCRIPT_URL +
+      '?accion=guardar_plan&datos=' +
+      encodeURIComponent(JSON.stringify(asignaciones));
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data.ok) mostrarToast('Ensayos guardados correctamente');
+    else mostrarToast('Error al guardar. Intenta de nuevo.');
+  } catch(e) {
+    mostrarToast('Error de conexión.');
+  }
+}
+
+async function cargarEnsayosExistentes() {
+  try {
+    const url  = SCRIPT_URL + '?accion=plan_semana_docente';
+    const resp = await fetch(url);
+    const data = await resp.json();
+    if (data.plan) {
+      data.plan.forEach(item => {
+        if (item.tipo === 'ensayo') {
+          planEnsayos[item.correo] = {
+            ensayo:        item.guia,
+            ensayo_nombre: item.ensayo_nombre || item.guia,
+            fecha:         item.fecha,
+            estado:        item.estado
+          };
+        }
+      });
+      renderEnsayos();
+    }
+  } catch(e) {}
+}
+
 // ── INIT: controlado por chequearAcceso() ──
 
 // ── CONTROL DE ACCESO ────────────────────────────────────
@@ -1041,6 +1277,7 @@ function mostrarPanel() {
   document.getElementById('panel-contenido').style.display = 'block';
   cargarEstudiantes();
   renderizarCatalogo();
+  cargarEnsayosExistentes();
 }
 
 function chequearAcceso() {
