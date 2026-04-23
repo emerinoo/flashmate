@@ -540,6 +540,7 @@ async function verificarAcceso() {
       plan:             dataVerif.plan,
       vencimiento:      dataVerif.vencimiento,
       guiasHabilitadas: dataVerif.guiasHabilitadas || [],
+      guiasDesbloqueadas: dataVerif.guiasDesbloqueadas || [],
       guiaHoy:          dataVerif.guiaHoy   || null,
       ensayoHoy:        dataVerif.ensayoHoy  || null,
       semana:           dataVerif.semana    || [],
@@ -886,13 +887,22 @@ function toggleCatalogo() {
 }
 
 function renderCatalogo() {
-  const habilitadas = new Set(estudiante.guiasHabilitadas);
+  // Guías desbloqueadas = las que han sido asignadas alguna vez (por Planificacion)
+  // Más las que ya tienen resultado registrado (por si vienen de versión anterior)
   const resultados  = estudiante.resultados || {};
   const guiaHoyCod  = estudiante.guiaHoy ? estudiante.guiaHoy.guia : null;
 
+  // Combinar guiasDesbloqueadas del servidor + las que tienen resultado
+  const desbloqueadasSet = new Set([
+    ...(estudiante.guiasDesbloqueadas || []),
+    ...Object.keys(resultados)
+  ]);
+  // Si hay guía de hoy, también está desbloqueada
+  if (guiaHoyCod) desbloqueadasSet.add(guiaHoyCod);
+
   const completadas = Object.keys(resultados).filter(c => resultados[c].logro >= 0.6);
   document.getElementById('catalogo-resumen').textContent =
-    completadas.length + ' de ' + estudiante.guiasHabilitadas.length + ' guías completadas';
+    completadas.length + ' de ' + desbloqueadasSet.size + ' guías desbloqueadas';
 
   const contenedor = document.getElementById('contenedor-secciones');
   contenedor.innerHTML = '';
@@ -901,7 +911,7 @@ function renderCatalogo() {
     const secDiv = document.createElement('div');
     secDiv.className = 'seccion';
 
-    const habSec  = sec.guias.filter(g => habilitadas.has(g.cod)).length;
+    const habSec  = sec.guias.filter(g => desbloqueadasSet.has(g.cod)).length;
     const compSec = sec.guias.filter(g => resultados[g.cod] && resultados[g.cod].logro >= 0.6).length;
 
     secDiv.innerHTML = `
@@ -918,7 +928,7 @@ function renderCatalogo() {
     const grid = secDiv.querySelector('.grid');
 
     sec.guias.forEach(g => {
-      const estaHabilitada = habilitadas.has(g.cod);
+      const estaHabilitada = desbloqueadasSet.has(g.cod);
       const resultado      = resultados[g.cod];
       const completada     = resultado && resultado.logro >= 0.6;
       const logroPct       = resultado ? Math.round(resultado.logro * 100) : 0;
