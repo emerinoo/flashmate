@@ -445,6 +445,39 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--texto);mi
     <button class="nav-btn" onclick="cambiarSemana(1)">siguiente →</button>
   </div>
 
+  <!-- BUSCADOR Y RESUMEN -->
+
+  <!-- BUSCADOR -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+    <div class="search-plan-wrap">
+      <span class="search-plan-icon">🔍</span>
+      <input class="search-plan-input" id="buscador-plan" type="text"
+        placeholder="Buscar estudiante..."
+        oninput="filtrarEstudiantes(this.value)">
+    </div>
+    <div style="font-size:11px;color:var(--suave);" id="search-count-plan"></div>
+  </div>
+
+  <!-- RESUMEN SEMANAL -->
+  <div class="resumen-wrap" id="resumen-semanal">
+    <div class="resumen-header">
+      <span class="resumen-titulo">Resumen esta semana</span>
+    </div>
+    <table class="resumen-table">
+      <thead>
+        <tr>
+          <th>Estudiante</th>
+          <th>Asignadas</th>
+          <th>Completadas</th>
+          <th>Pendientes</th>
+          <th>Estado</th>
+        </tr>
+      </thead>
+      <tbody id="resumen-tbody"></tbody>
+    </table>
+  </div>
+
+
   <!-- Leyenda -->
   <div class="leyenda">
     <div class="ley-item"><div class="ley-dot" style="background:#D1FAE5;border:1.5px solid #86EFAC;"></div>completada</div>
@@ -662,10 +695,23 @@ function renderPlanificacion() {
   document.getElementById('semana-titulo').textContent = 'Semana ' + semNum;
   document.getElementById('semana-rango').textContent  = formatRango(dias);
 
+  renderResumen();
+
   const contenedor = document.getElementById('bloques-estudiantes');
   contenedor.innerHTML = '';
 
-  ESTUDIANTES.forEach((est, idx) => {
+  const estudiantesFiltrados = filtroBusqueda
+    ? ESTUDIANTES.filter(e => e.nombre.toLowerCase().includes(filtroBusqueda))
+    : ESTUDIANTES;
+
+  const countEl = document.getElementById('search-count-plan');
+  if (countEl) {
+    countEl.textContent = filtroBusqueda
+      ? estudiantesFiltrados.length + ' resultado' + (estudiantesFiltrados.length !== 1 ? 's' : '') + ' para "' + document.getElementById('buscador-plan').value + '"'
+      : '';
+  }
+
+  estudiantesFiltrados.forEach((est, idx) => {
     if (!planSemana[est.correo]) planSemana[est.correo] = {};
 
     // Contar ejercicios totales del estudiante
@@ -678,6 +724,7 @@ function renderPlanificacion() {
 
     const bloque = document.createElement('div');
     bloque.className = 'estudiante-bloque';
+    bloque.id = 'bloque-est-' + ESTUDIANTES.indexOf(est);
     bloque.innerHTML = `
       <div class="estudiante-hdr">
         <div class="estudiante-info">
@@ -756,6 +803,76 @@ function getSemanaNumero(lunes) {
   const ini = new Date(lunes.getFullYear(), 0, 1);
   const diff = lunes - ini;
   return Math.ceil((diff / 86400000 + ini.getDay() + 1) / 7);
+}
+
+
+// ── BUSCADOR DE ESTUDIANTES ──────────────────────────────
+let filtroBusqueda = '';
+
+function filtrarEstudiantes(valor) {
+  filtroBusqueda = valor.toLowerCase().trim();
+  renderPlanificacion();
+}
+
+// ── RESUMEN SEMANAL ──────────────────────────────────────
+function renderResumen() {
+  const tbody = document.getElementById('resumen-tbody');
+  if (!tbody) return;
+  const hoyStr = fechaStr(new Date());
+  const dias = diasSemana(semanaOffset);
+
+  tbody.innerHTML = '';
+
+  ESTUDIANTES.forEach((est, idx) => {
+    const semEst = planSemana[est.correo] || {};
+    let asignadas = 0, completadas = 0, pendientes = 0;
+
+    dias.forEach(d => {
+      const fs = fechaStr(d);
+      const dato = semEst[fs];
+      if (dato) {
+        asignadas++;
+        if (dato.estado === 'completada') completadas++;
+        else pendientes++;
+      }
+    });
+
+    let badgeHTML = '';
+    if (asignadas === 0) {
+      badgeHTML = '<span class="badge-sinasig">Sin asignar</span>';
+    } else if (pendientes === 0) {
+      badgeHTML = '<span class="badge-aldia">Al día</span>';
+    } else {
+      badgeHTML = '<span class="badge-atrasado">Pendiente</span>';
+    }
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>
+        <div class="res-nombre">
+          <div class="avatar av-${est.avIdx % 5}">${est.iniciales}</div>
+          ${est.nombre}
+        </div>
+      </td>
+      <td>${asignadas || '<span class="res-num-gris">—</span>'}</td>
+      <td class="res-num-ok">${completadas || '<span class="res-num-gris">0</span>'}</td>
+      <td class="${pendientes > 0 ? 'res-num-pend' : 'res-num-gris'}">${pendientes}</td>
+      <td>${badgeHTML}</td>`;
+
+    // Click en fila lleva al bloque del estudiante
+    tr.style.cursor = 'pointer';
+    tr.onclick = () => {
+      filtroBusqueda = est.nombre.toLowerCase().split(' ')[0];
+      document.getElementById('buscador-plan').value = est.nombre.split(' ')[0];
+      renderPlanificacion();
+      setTimeout(() => {
+        const bloque = document.getElementById('bloque-est-' + idx);
+        if (bloque) bloque.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 100);
+    };
+
+    tbody.appendChild(tr);
+  });
 }
 
 // ── MODAL DOS PASOS ──
