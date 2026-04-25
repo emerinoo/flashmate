@@ -108,7 +108,7 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--texto);mi
 
 /* Grid días */
 .dias-grid{
-  display:grid;grid-template-columns:repeat(7,minmax(0,1fr));
+  display:grid;grid-template-columns:repeat(5,minmax(0,1fr));
   gap:8px;padding:12px 16px;
 }
 .dia-col{display:flex;flex-direction:column;gap:4px;}
@@ -457,24 +457,6 @@ body{font-family:'Poppins',sans-serif;background:var(--bg);color:var(--texto);mi
     </div>
     <div style="font-size:11px;color:var(--suave);" id="search-count-plan"></div>
   </div>
-
-  <!-- RESUMEN SEMANAL -->
-  <div class="resumen-wrap" id="resumen-semanal">
-    <div class="resumen-header">
-      <span class="resumen-titulo">Resumen esta semana</span>
-    </div>
-    <table class="resumen-table">
-      <thead>
-        <tr>
-          <th>Estudiante</th>
-          <th>Asignadas</th>
-          <th>Completadas</th>
-          <th>Pendientes</th>
-          <th>Estado</th>
-        </tr>
-      </thead>
-      <tbody id="resumen-tbody"></tbody>
-    </table>
   </div>
 
 
@@ -650,7 +632,7 @@ function fechaStr(d) {
 
 function diasSemana(offset) {
   const lunes = getLunes(offset);
-  return Array.from({length:7}, (_,i) => {
+  return Array.from({length:5}, (_,i) => {
     const d = new Date(lunes);
     d.setDate(lunes.getDate() + i);
     return d;
@@ -658,7 +640,7 @@ function diasSemana(offset) {
 }
 
 function formatDia(d) {
-  const nombres = ['lun','mar','mié','jue','vie','sáb','dom'];
+  const nombres = ['lun','mar','mié','jue','vie'];
   return nombres[d.getDay() === 0 ? 6 : d.getDay()-1] + ' ' + d.getDate();
 }
 
@@ -694,8 +676,6 @@ function renderPlanificacion() {
   const semNum = getSemanaNumero(dias[0]);
   document.getElementById('semana-titulo').textContent = 'Semana ' + semNum;
   document.getElementById('semana-rango').textContent  = formatRango(dias);
-
-  renderResumen();
 
   const contenedor = document.getElementById('bloques-estudiantes');
   contenedor.innerHTML = '';
@@ -814,66 +794,6 @@ function filtrarEstudiantes(valor) {
   renderPlanificacion();
 }
 
-// ── RESUMEN SEMANAL ──────────────────────────────────────
-function renderResumen() {
-  const tbody = document.getElementById('resumen-tbody');
-  if (!tbody) return;
-  const hoyStr = fechaStr(new Date());
-  const dias = diasSemana(semanaOffset);
-
-  tbody.innerHTML = '';
-
-  ESTUDIANTES.forEach((est, idx) => {
-    const semEst = planSemana[est.correo] || {};
-    let asignadas = 0, completadas = 0, pendientes = 0;
-
-    dias.forEach(d => {
-      const fs = fechaStr(d);
-      const dato = semEst[fs];
-      if (dato) {
-        asignadas++;
-        if (dato.estado === 'completada') completadas++;
-        else pendientes++;
-      }
-    });
-
-    let badgeHTML = '';
-    if (asignadas === 0) {
-      badgeHTML = '<span class="badge-sinasig">Sin asignar</span>';
-    } else if (pendientes === 0) {
-      badgeHTML = '<span class="badge-aldia">Al día</span>';
-    } else {
-      badgeHTML = '<span class="badge-atrasado">Pendiente</span>';
-    }
-
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>
-        <div class="res-nombre">
-          <div class="avatar av-${est.avIdx % 5}">${est.iniciales}</div>
-          ${est.nombre}
-        </div>
-      </td>
-      <td>${asignadas || '<span class="res-num-gris">—</span>'}</td>
-      <td class="res-num-ok">${completadas || '<span class="res-num-gris">0</span>'}</td>
-      <td class="${pendientes > 0 ? 'res-num-pend' : 'res-num-gris'}">${pendientes}</td>
-      <td>${badgeHTML}</td>`;
-
-    // Click en fila lleva al bloque del estudiante
-    tr.style.cursor = 'pointer';
-    tr.onclick = () => {
-      filtroBusqueda = est.nombre.toLowerCase().split(' ')[0];
-      document.getElementById('buscador-plan').value = est.nombre.split(' ')[0];
-      renderPlanificacion();
-      setTimeout(() => {
-        const bloque = document.getElementById('bloque-est-' + idx);
-        if (bloque) bloque.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
-    };
-
-    tbody.appendChild(tr);
-  });
-}
 
 // ── MODAL DOS PASOS ──
 
@@ -1191,7 +1111,7 @@ function renderizarCatalogo() {
         <div class="guia-acciones">
           <button class="btn-copiar" id="btn-${g.cod.replace(/\./g,'-')}"
             onclick="copiarLink('${g.cod}',this)">⎘ Copiar link</button>
-          <a class="btn-abrir" href="${urlGuia(g.cod)}?modo=docente" target="_blank">↗ Abrir</a>
+          <a class="btn-abrir" href="${urlGuia(g.cod)}" target="_blank">↗ Abrir</a>
         </div>`;
       grid.appendChild(card);
     });
