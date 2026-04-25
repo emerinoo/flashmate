@@ -298,6 +298,7 @@ function mostrarFinal(){
   document.getElementById('reslista').innerHTML=resp.map((r,i)=>{const ok=r===EJ[i].ok,nls=r===NLS;const color=ok?'#085041':nls?'#5F5E5A':'#791F1F';const icono=ok?'✓':nls?'?':'✗';const txt=ok?'Correcta':nls?`No lo sé — correcta: ${LETRAS[EJ[i].ok]}`:`Incorrecta — correcta: ${LETRAS[EJ[i].ok]}`;return `<div style="color:${color}">${icono} P${i+1} (${EJ[i].hab}): ${txt}</div>`;}).join('');
 }
 function registrar(corr,incorr,nls,pct){
+  if (window._modoDocente) return;
   var fecha=new Date().toLocaleDateString('es-CL',{timeZone:'America/Santiago'});
   var correo=document.getElementById('inp-correo').value.trim();
   var HAB_E=["Modelar", "Resolver problemas", "Argumentar", "Modelar", "Resolver problemas", "Modelar", "Argumentar", "Resolver problemas"];
@@ -352,7 +353,30 @@ function autoIdentificar() {
     render();
   }
 }
-// Ejecutar al cargar la página
-window.addEventListener('load', autoIdentificar);
+
+// Modo docente — detección
+function chequearModoDocente() {
+  const params = new URLSearchParams(window.location.search);
+  const modo = params.get('modo');
+  // Modo docente — solo lectura, sin formulario ni registro
+  if (modo === 'docente') {
+    document.getElementById('zona-ident').style.display = 'none';
+    document.getElementById('zona-q').style.display = 'block';
+    nombreEstudiante = 'Vista docente';
+    document.getElementById('inp-nombre').value = 'Vista docente';
+    document.getElementById('inp-correo').value = 'docente@flashmate.cl';
+    EJ = generarEjercicios();
+    resp = new Array(8).fill(null);
+    actual = 0; sel = null;
+    window._modoDocente = true;
+    render();
+    return;
+  }
+}
+window.addEventListener('load', function() {
+  chequearModoDocente();
+  autoIdentificar();
+});
+
 </script>
 </body></html>
