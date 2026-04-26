@@ -235,10 +235,7 @@ function generarEjercicios(){
 
   // P8 — Argumentar: p<0<q con |p|>|q|, proposiciones
   EJ.push({hab:'Argumentar',
-    txt:'Sean p y q racionales con p < 0 < q y |p| > |q|. ¿Cuáles proposiciones son VERDADERAS?
-I.  p + q < 0
-II. p · q < 0
-III. p/q < p',
+    txt:'Sean p y q racionales con p < 0 < q y |p| > |q|. ¿Cuáles proposiciones son VERDADERAS?\nI.  p + q < 0\nII. p · q < 0\nIII. p/q < p',
     ops:['Solo I','I y II','Solo II','I, II y III'],ok:3,
     fb_ok:'Correcto. I: |p|>|q| y p<0 → p+q<0 ✓. II: neg×pos=neg ✓. III: p/q=neg/pos=neg. Como 1/q<1 (q>0), p/q hace a p más negativo, entonces p/q<p ✓. Las tres son verdaderas.',
     fb_mal:'I ✓ (|p|>|q|, p negativo domina). II ✓ (neg×pos=neg). III ✓ (p/q es más negativo que p cuando 0<q<1, o igual cuando q=1). Las tres son verdaderas.'

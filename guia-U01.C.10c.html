@@ -173,10 +173,7 @@ function generarEjercicios(){
 
   // P2 — Argumentar: proposiciones con a<b racionales
   EJ.push({hab:'Argumentar',
-    txt:'Sean a y b racionales con a < b. ¿Cuáles proposiciones son SIEMPRE verdaderas?
-I.  (b − a) es un racional positivo.
-II. (a − b)·(b − a) es un racional negativo.
-III. a² < b²',
+    txt:'Sean a y b racionales con a < b. ¿Cuáles proposiciones son SIEMPRE verdaderas?\nI.  (b − a) es un racional positivo.\nII. (a − b)·(b − a) es un racional negativo.\nIII. a² < b²',
     ops:['Solo I','I y II','Solo III','I, II y III'],ok:1,
     fb_ok:'Correcto. I: b>a→b−a>0 ✓. II: (a−b)=−(b−a)<0, producto (neg)(pos)=negativo ✓. III: FALSA — si a=−5, b=−1: a<b pero a²=25>1=b².',
     fb_mal:'I y II son verdaderas. III es falsa: con a=−5<b=−1, a²=25>b²=1. El cuadrado no preserva orden cuando hay negativos.'

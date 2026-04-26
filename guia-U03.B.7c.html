@@ -165,10 +165,7 @@ function generarEjercicios(){
 
   // P1 — Argumentar: proposiciones sobre raíces enésimas
   EJ.push({hab:'Argumentar',
-    txt:'¿Cuáles proposiciones son VERDADERAS?
-I.   ³√3 · ³√(3²) = 3
-II.  ³√(3⁴÷3) = ¹²√3
-III. ³√3 · ⁴√3 = ⁷√3',
+    txt:'¿Cuáles proposiciones son VERDADERAS?\nI.   ³√3 · ³√(3²) = 3\nII.  ³√(3⁴÷3) = ¹²√3\nIII. ³√3 · ⁴√3 = ⁷√3',
     ops:['Solo I','Solo II','Solo I y II','Solo II y III'], ok:0,
     fb_ok:'Solo I: ³√3·³√9=³√27=3 ✓. II: ³√(3³)=3≠¹²√3 ✗. III: 3^(7/12)=¹²√(3⁷)≠⁷√3 ✗.',
     fb_mal:'I: ³√3·³√(3²)=³√(3³)=3 ✓. II: ³√(3⁴/3)=³√(3³)=3≠¹²√3 ✗. III: exp=7/12≠1/7 ✗. Solo I.'
@@ -208,9 +205,7 @@ III. ³√3 · ⁴√3 = ⁷√3',
 
   // P6 — Argumentar: identificar la que NO es equivalente a √26
   EJ.push({hab:'Argumentar',
-    txt:'¿Cuál expresión NO es equivalente a √26?
-A) √(4·26)/2
-B) √(27+2)·√(27−2) ... según opciones digitales',
+    txt:'¿Cuál expresión NO es equivalente a √26?\nA) √(4·26)/2\nB) √(27+2)·√(27−2) ... según opciones digitales',
     ops:['√4·√26/2 = √26 ✓','(√3+√2√2)−(√3−√2√2) ← analizar','√(√2+√3)·√(√2+√3) = √2+√3 ≠ √26','√(29−3)=√26 ✓'], ok:2,
     fb_ok:'Correcto. √(√2+√3)·√(√2+√3)=(√2+√3)²=2+2√6+3=5+2√6≠√26. Las demás sí son equivalentes.',
     fb_mal:'Verifica cada opción: (√2+√3)²=5+2√6≈7,9≠√26≈5,1. Esa es la no equivalente.'
@@ -226,10 +221,7 @@ B) √(27+2)·√(27−2) ... según opciones digitales',
 
   // P8 — Argumentar: x^((2-n)/3) equivalencias
   EJ.push({hab:'Argumentar',
-    txt:'Si x > 0, ¿cuál expresión es equivalente a x^((2−n)/3)?
-I.   ³√(x^(2−n))
-II.  x^(2/3)·x^(−n/3)
-III. ⁶√(x^(4−2n))',
+    txt:'Si x > 0, ¿cuál expresión es equivalente a x^((2−n)/3)?\nI.   ³√(x^(2−n))\nII.  x^(2/3)·x^(−n/3)\nIII. ⁶√(x^(4−2n))',
     ops:['Solo I','I y II','Solo III','I, II y III'], ok:3,
     fb_ok:'Correcto. I: ³√(x^(2−n))=x^((2−n)/3) ✓. II: x^(2/3)·x^(−n/3)=x^((2−n)/3) ✓. III: ⁶√(x^(4−2n))=x^((4−2n)/6)=x^((2−n)/3) ✓. Las tres son equivalentes.',
     fb_mal:'I: ✓. II: x^(2/3−n/3)=x^((2−n)/3) ✓. III: (4−2n)/6=(2−n)/3 ✓. Las tres son equivalentes.'
