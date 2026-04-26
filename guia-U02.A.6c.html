@@ -354,28 +354,38 @@ function autoIdentificar() {
   }
 }
 
-// Modo docente — detección
-function chequearModoDocente() {
+// ── AUTO-LOGIN Y MODO DOCENTE ──────────────────────────
+window.addEventListener('load', function() {
   const params = new URLSearchParams(window.location.search);
-  const modo = params.get('modo');
-  // Modo docente — solo lectura, sin formulario ni registro
+  const modo   = params.get('modo');
+  const nombre = params.get('nombre');
+  const correo = params.get('correo');
+
   if (modo === 'docente') {
+    // Modo docente: saltar formulario, no registrar
+    window._modoDocente = true;
+    nombreEstudiante = 'Vista docente';
     document.getElementById('zona-ident').style.display = 'none';
     document.getElementById('zona-q').style.display = 'block';
-    nombreEstudiante = 'Vista docente';
-    document.getElementById('inp-nombre').value = 'Vista docente';
-    document.getElementById('inp-correo').value = 'docente@flashmate.cl';
     EJ = generarEjercicios();
     resp = new Array(8).fill(null);
     actual = 0; sel = null;
-    window._modoDocente = true;
     render();
-    return;
+    return; // no continuar con autoIdentificar
   }
-}
-window.addEventListener('load', function() {
-  chequearModoDocente();
-  autoIdentificar();
+
+  if (nombre && correo) {
+    // Auto-login desde portal: saltar formulario con datos reales
+    document.getElementById('inp-nombre').value = nombre;
+    document.getElementById('inp-correo').value = correo;
+    document.getElementById('zona-ident').style.display = 'none';
+    document.getElementById('zona-q').style.display = 'block';
+    nombreEstudiante = nombre;
+    EJ = generarEjercicios();
+    resp = new Array(8).fill(null);
+    actual = 0; sel = null;
+    render();
+  }
 });
 
 </script>
