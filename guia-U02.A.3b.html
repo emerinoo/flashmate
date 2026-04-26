@@ -146,7 +146,7 @@ function generarEjercicios(){
   const parte1=rnd([20,30,40,50]);
   const pct1=rnd([25,20,40,50]);
   const total1=parte1*100/pct1;
-  const pct2=rnd([30,35,40,45]).filter(x=>x!==pct1)[0]||pct1+5;
+  const pct2=[30,35,40,45].filter(x=>x!==pct1)[Math.floor(Math.random()*3)]||pct1+5;
   const necesita=Math.round(total1*pct2/100);
   const agregar=necesita-parte1;
   const w1=shuffle([agregar+5,agregar-3,necesita,agregar+8]).filter(x=>x>0&&x!==agregar).slice(0,3);
@@ -160,7 +160,7 @@ function generarEjercicios(){
 
   // P2 — Representar: % del % (encadenado)
   const p2a=rnd([2,3,5,4]);
-  const p2b=rnd([6,8,10,5]).filter(x=>x!==p2a)[0]||8;
+  const p2b=[6,8,10,5].filter(x=>x!==p2a)[0]||8;
   const base2=rnd([400,500,600,800]);
   const paso1=base2*p2b/100;
   const res2=paso1*p2a/100;
@@ -202,7 +202,7 @@ function generarEjercicios(){
 
   // P5 — Argumentar: proposiciones sobre ausentes en curso
   const totalC=rnd([36,40,48,60]);
-  const ausentes=rnd([9,10,12,15]).filter(x=>x<totalC/2)[0]||Math.round(totalC/4);
+  const ausentes=[9,10,12,15].filter(x=>x<totalC/2)[0]||Math.round(totalC/4);
   const presentes=totalC-ausentes;
   EJ.push({hab:'Argumentar',
     txt:`En un curso de ${totalC} alumnos faltaron ${ausentes}. ¿Cuál(es) proposiciones son verdaderas?

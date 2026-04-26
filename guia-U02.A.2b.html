@@ -186,7 +186,7 @@ function generarEjercicios(){
 
   // P4 — Representar: calcular % de rebaja
   const original4=rnd([400,500,600,800,1000]);
-  const final4=rnd([300,400,480,600,750]).filter(x=>x<original4)[0]||original4*0.75;
+  const final4=[300,400,480,600,750].filter(x=>x<original4)[0]||original4*0.75;
   const rebaja=original4-final4;
   const pctRebaja=Math.round(rebaja/original4*100);
   const w4=shuffle([pctRebaja+5,pctRebaja-5,Math.round(rebaja/final4*100),pctRebaja+10]).filter(x=>x>0&&x!==pctRebaja).slice(0,3);
@@ -227,7 +227,7 @@ III. El precio ÷ 100 × 12,5.',
 
   // P7 — Modelar: calcular % de aumento de precio
   const precio7a=rnd([20000,15000,25000,30000]);
-  const precio7b=rnd([24000,18000,30000,36000]).filter(x=>x>precio7a)[0]||precio7a*1.2;
+  const precio7b=[24000,18000,30000,36000].filter(x=>x>precio7a)[0]||precio7a*1.2;
   const aum7=Math.round((precio7b-precio7a)/precio7a*100);
   const w7=shuffle([aum7+5,aum7-5,Math.round((precio7b-precio7a)/precio7b*100),aum7+10]).filter(x=>x>0&&x!==aum7).slice(0,3);
   const ops7=shuffle([aum7,...w7]).map(x=>x+'%');
